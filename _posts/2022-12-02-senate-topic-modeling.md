@@ -8,8 +8,6 @@ With this post, I'm taking a break from my [metadata workflow series](https://bl
 
 In my digital libraries class this semester, we have been studying the application of machine learning tools to text analysis problems. For practice, I decided to apply one of those tools, topic modeling, to the corpus of 74th Congress Senate bills and join resolutions I processed during my remote metadata internship with the Law Library of Congress.
 
-# The Workflow
-
 ## Setting Up
 
 ### The Necessary Libraries
@@ -181,3 +179,7 @@ ldavis <- toLDAvis(model, lda$documents, R = 48,
 ```
 
 You can see the final product [here](https://bl.ocks.org/blackerby/raw/def5c205228616e8e0e6cc0945bd9f4f/#topic=0&lambda=1&term=).
+
+## Wrapping up
+
+Poking around in the visualization a little bit, it becomes clear that there's some more refinement of our data we could do, e.g., removing any token with a numeral in it, removing more honorifics than just "Mr.", and perhaps removing the names of actions like "approve", "pass", and "refer". That said, I think that this visualization does offer a good sense of the topics under discussion in various Senate committees in the 74th, and creating it was a great skill-building exercise.
