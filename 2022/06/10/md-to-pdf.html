@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>md-to-pdf | William Blackerby</title>
+<meta name="generator" content="Jekyll v4.2.1" />
+<meta property="og:title" content="md-to-pdf" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="As I said in my last post, one of my goals this summer us to publish a blog post every week. I had forgotten about that goal until I looked at my todo list for the day and surprised myself that I’d had the presence of mind to set up a weekly reminder for this goal. So, this will be a short post, but it counts." />
+<meta property="og:description" content="As I said in my last post, one of my goals this summer us to publish a blog post every week. I had forgotten about that goal until I looked at my todo list for the day and surprised myself that I’d had the presence of mind to set up a weekly reminder for this goal. So, this will be a short post, but it counts." />
+<link rel="canonical" href="https://blackerby.github.io/2022/06/10/md-to-pdf.html" />
+<meta property="og:url" content="https://blackerby.github.io/2022/06/10/md-to-pdf.html" />
+<meta property="og:site_name" content="William Blackerby" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-06-10T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="md-to-pdf" />
+<script type="application/ld+json">
+{"description":"As I said in my last post, one of my goals this summer us to publish a blog post every week. I had forgotten about that goal until I looked at my todo list for the day and surprised myself that I’d had the presence of mind to set up a weekly reminder for this goal. So, this will be a short post, but it counts.","headline":"md-to-pdf","dateModified":"2022-06-10T00:00:00+00:00","url":"https://blackerby.github.io/2022/06/10/md-to-pdf.html","datePublished":"2022-06-10T00:00:00+00:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blackerby.github.io/2022/06/10/md-to-pdf.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blackerby.github.io/feed.xml" title="William Blackerby" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper">
+<a class="site-title" rel="author" href="/">William Blackerby</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger">
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewbox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav>
+</div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">md-to-pdf</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2022-06-10T00:00:00+00:00" itemprop="datePublished">Jun 10, 2022
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>As I said in my last post, one of my goals this summer us to publish a blog post every week. I had forgotten about that goal until I looked at my todo list for the day and surprised myself that I’d had the presence of mind to set up a weekly reminder for this goal. So, this will be a short post, but it counts.</p>
+
+<p>On Monday I plan to submit an application for an <a href="https://www.loc.gov/item/internships/remote-metadata-internship-unpaid/" target="_blank" rel="noopener noreferrer">internship in the Remote Metadata Program with the Law Library of Congress</a>. I have spent some of this past week working on my resume and cover letter and am grateful for Dr. MacCall for his feedback on both. I decided to start keeping my resume in a <a href="https://en.wikipedia.org/wiki/Markdown" target="_blank" rel="noopener noreferrer">Markdown</a> file in a git repository so I could have an easily manipulable text-based format to prepare it in and so I could keep up with different versions and changes over time. A rather lofty goal I had was to learn to use <a href="https://pandoc.org" target="_blank" rel="noopener noreferrer">pandoc</a> to convert the file to PDF, but I didn’t have the patience to learn how to change the default TeX-based formatting of the PDF file it outputs. Pandoc will have to wait.</p>
+
+<p>A little bit of digging for another Markdown-to-PDF solution that doesn’t involve uploading my document to a remote site turned up a nifty little <a href="https://nodejs.org/en/" target="_blank" rel="noopener noreferrer">Node.js</a> tool called <a href="https://www.npmjs.com/package/md-to-pdf" target="_blank" rel="noopener noreferrer">md-to-pdf</a>. The documentation is great and the tool is pretty intuitive to use if you’re comfortable on the command line. I am really pleased with how the resulting PDF looks (after a little tweaking). Plus, since I’ve been working on learning Javascript and React, it seems like a tool that might be to try to dig into the internals of.</p>
+
+  </div>
+<a class="u-url" href="/2022/06/10/md-to-pdf.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">William Blackerby</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">William Blackerby</li>
+<li><a class="u-email" href="mailto:wmblackerby@gmail.com">wmblackerby@gmail.com</a></li>
+</ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+<ul class="social-media-list"><li><a href="https://github.com/blackerby" target="_blank" rel="noopener noreferrer"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">blackerby</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>William Blackerby's home on the web.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

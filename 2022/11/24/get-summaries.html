@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>get_summaries.py | William Blackerby</title>
+<meta name="generator" content="Jekyll v4.2.1" />
+<meta property="og:title" content="get_summaries.py" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I wrote this lengthy post, the third in my metadata workflow series, in org-mode, which helpfully generates a table of contents on exporting to markdown. I hope it’s handy for navigation." />
+<meta property="og:description" content="I wrote this lengthy post, the third in my metadata workflow series, in org-mode, which helpfully generates a table of contents on exporting to markdown. I hope it’s handy for navigation." />
+<link rel="canonical" href="https://blackerby.github.io/2022/11/24/get-summaries.html" />
+<meta property="og:url" content="https://blackerby.github.io/2022/11/24/get-summaries.html" />
+<meta property="og:site_name" content="William Blackerby" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-11-24T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="get_summaries.py" />
+<script type="application/ld+json">
+{"description":"I wrote this lengthy post, the third in my metadata workflow series, in org-mode, which helpfully generates a table of contents on exporting to markdown. I hope it’s handy for navigation.","headline":"get_summaries.py","dateModified":"2022-11-24T00:00:00+00:00","url":"https://blackerby.github.io/2022/11/24/get-summaries.html","datePublished":"2022-11-24T00:00:00+00:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blackerby.github.io/2022/11/24/get-summaries.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blackerby.github.io/feed.xml" title="William Blackerby" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper">
+<a class="site-title" rel="author" href="/">William Blackerby</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger">
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewbox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav>
+</div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">get_summaries.py</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2022-11-24T00:00:00+00:00" itemprop="datePublished">Nov 24, 2022
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>I wrote this lengthy post, the third in my <a href="https://blackerby.github.io/workflow-series/">metadata workflow series</a>, in <a href="https://orgmode.org/" target="_blank" rel="noopener noreferrer">org-mode</a>, which helpfully generates a table of contents on exporting to markdown. I hope it’s handy for navigation.</p>
+
+<p>I also hope to convert this file to <a href="https://ipython.org/notebook.html" target="_blank" rel="noopener noreferrer">ipynb format</a> so interested folks can try the code out on their own.  The code is currently published on <a href="https://github.com/blackerby/llc_pdf_etl_workflow/blob/main/get_summaries.py" target="_blank" rel="noopener noreferrer">GitHub</a>.</p>
+
+<h1 id="table-of-contents">Table of Contents</h1>
+
+<ol>
+  <li>
+<a href="#org74c4f0f">Environment Setup</a>
+    <ol>
+      <li><a href="#orgbbe4192">The Shebang Line</a></li>
+      <li><a href="#orgf23cd14">Necessary Libraries</a></li>
+    </ol>
+  </li>
+  <li>
+<a href="#orgb285bec">Constants</a>
+    <ol>
+      <li><a href="#org2c5204a">(No) Magic Numbers</a></li>
+      <li><a href="#org9ae5b31">The Month Dictionary</a></li>
+    </ol>
+  </li>
+  <li>
+<a href="#orga8bf1f8">Big, Ugly Regular Expressions</a>
+    <ol>
+      <li><a href="#orgdb31e26">The Summary Header Pattern</a></li>
+      <li><a href="#orgbf64b5f">The Date Pattern</a></li>
+    </ol>
+  </li>
+  <li>
+<a href="#orgc42185f">Functions</a>
+    <ol>
+      <li><a href="#org6c807de">Argument Parsing</a></li>
+      <li><a href="#orge6f6ba9">Naming the CSV data file</a></li>
+      <li><a href="#orgb3d0a3d">Getting the Data</a></li>
+      <li><a href="#org9048eeb">Dates</a></li>
+      <li><a href="#orgf4b7948">Output File Names</a></li>
+      <li>
+<a href="#org2e11b5f">Writing out the files</a>
+        <ol>
+          <li><a href="#orgdc07a37">Writing the CSV File</a></li>
+          <li><a href="#org09e3803">Writing the Summary Files</a></li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+  <li><a href="#org6866364">Putting it all together</a></li>
+  <li><a href="#orgf96c958">Up next</a></li>
+</ol>
+
+<h1 id="environment-setup">Environment Setup</h1>
+
+<h2 id="the-shebang-line">The Shebang Line</h2>
+
+<p>We add a <a href="https://en.wikipedia.org/wiki/Shebang_(Unix)" target="_blank" rel="noopener noreferrer">shebang</a> line in case we want to make this file executable.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python
+</span></code></pre></div></div>
+
+<h2 id="necessary-libraries">Necessary Libraries</h2>
+
+<p>Now we import the libraries we need.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">more_itertools</span> <span class="kn">import</span> <span class="n">chunked</span>
+<span class="kn">from</span> <span class="nn">PyPDF2</span> <span class="kn">import</span> <span class="n">PdfReader</span>
+</code></pre></div></div>
+<p>The role of each library is explained below:</p>
+
+<ul>
+  <li>
+<strong><code class="language-plaintext highlighter-rouge">argparse</code>:</strong> handles command-line argument parsing
+    <ul>
+      <li>In this script, those command line arguments are the path to the PDF file we are processing, the page we will start processing from, and an optional argument for where we will stop processing.</li>
+    </ul>
+  </li>
+  <li>
+<strong><code class="language-plaintext highlighter-rouge">sys</code>:</strong> handles a variety of interactions between python and its host system
+    <ul>
+      <li>In this script, it is used once: to exit the program in case of a fatal error</li>
+    </ul>
+  </li>
+  <li>
+<strong><code class="language-plaintext highlighter-rouge">re</code>:</strong> is python’s regular expression library
+    <ul>
+      <li>In this script, it does the bulk of the work.</li>
+    </ul>
+  </li>
+  <li>
+<strong><code class="language-plaintext highlighter-rouge">csv</code>:</strong> is python’s library for dealing delimited data files.
+    <ul>
+      <li>In this script, it is used to write metadata from the bill summaries to a csv file.</li>
+    </ul>
+  </li>
+  <li>
+<strong><code class="language-plaintext highlighter-rouge">from pathlib import Path</code>:</strong> imports the Path object for dealing with file paths</li>
+  <li>
+<strong><code class="language-plaintext highlighter-rouge">from more_itertools import chunked</code>:</strong> imports the chunked function from the <code class="language-plaintext highlighter-rouge">more_itertools</code> library
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">more_itertools</code> is not part of a standard python distribution and needs to be installed using <code class="language-plaintext highlighter-rouge">pip</code>.</li>
+    </ul>
+  </li>
+  <li>
+<strong><code class="language-plaintext highlighter-rouge">from PyPDF2 import PdfReader</code>:</strong> is a third-party library for dealing PDF files that be installed using <code class="language-plaintext highlighter-rouge">pip</code>.</li>
+</ul>
+
+<h1 id="constants">Constants</h1>
+
+<h2 id="no-magic-numbers">(No) Magic Numbers</h2>
+
+<p>There are three numbers that play key roles in the script.  To avoid having <a href="https://en.wikipedia.org/wiki/Magic_number_(programming)" target="_blank" rel="noopener noreferrer">magic numbers</a>, we make them constants with descriptive names.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ELEMENT_COUNT</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="mi">7</span>  <span class="c1"># full header, bill type, bill number, sponsor(s), action date, committee, text
+</span><span class="p">)</span>
+<span class="n">CONGRESS_POSITION</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">SESSION_POSITION</span> <span class="o">=</span> <span class="mi">3</span>
+</code></pre></div></div>
+<ul>
+  <li>
+<strong><code class="language-plaintext highlighter-rouge">ELEMENT_COUNT</code>:</strong> is adequately explained by the comment in the above code block.</li>
+  <li>
+<strong><code class="language-plaintext highlighter-rouge">CONGRESS_POSITION</code>:</strong> refers to starting index of the number in the name of the file passed to the script that refers to the congress (e.g., 74th) the summaries were written for.</li>
+  <li>
+<strong><code class="language-plaintext highlighter-rouge">SESSION_POSITION</code>:</strong> is like <code class="language-plaintext highlighter-rouge">CONGRESS_POSITION</code>, but for the session of Congress (e.g., second).</li>
+</ul>
+
+<p><a id="org9ae5b31">Back to Top</a></p>
+
+<h2 id="the-month-dictionary">The Month Dictionary</h2>
+
+<p>We use a python dictionary to map between names (or abbreviations, or bad OCR text) of months as found in the bill summaries and two character strings of digits that will be used in naming the files containing the extracted summaries.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">MONTHS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"January"</span><span class="p">:</span> <span class="s">"01"</span><span class="p">,</span>
+    <span class="s">"February"</span><span class="p">:</span> <span class="s">"02"</span><span class="p">,</span>
+    <span class="s">"Feb."</span><span class="p">:</span> <span class="s">"02"</span><span class="p">,</span>
+    <span class="s">"March"</span><span class="p">:</span> <span class="s">"03"</span><span class="p">,</span>
+    <span class="s">"Mar."</span><span class="p">:</span> <span class="s">"03"</span><span class="p">,</span>
+    <span class="s">"April"</span><span class="p">:</span> <span class="s">"04"</span><span class="p">,</span>
+    <span class="s">"Apr."</span><span class="p">:</span> <span class="s">"04"</span><span class="p">,</span>
+    <span class="s">"May"</span><span class="p">:</span> <span class="s">"05"</span><span class="p">,</span>
+    <span class="s">"June"</span><span class="p">:</span> <span class="s">"06"</span><span class="p">,</span>
+    <span class="s">"July"</span><span class="p">:</span> <span class="s">"07"</span><span class="p">,</span>
+    <span class="s">"August"</span><span class="p">:</span> <span class="s">"08"</span><span class="p">,</span>
+    <span class="s">"September"</span><span class="p">:</span> <span class="s">"09"</span><span class="p">,</span>
+    <span class="s">"October"</span><span class="p">:</span> <span class="s">"10"</span><span class="p">,</span>
+    <span class="s">"November"</span><span class="p">:</span> <span class="s">"11"</span><span class="p">,</span>
+    <span class="s">"December"</span><span class="p">:</span> <span class="s">"12"</span><span class="p">,</span>
+    <span class="s">"Alay"</span><span class="p">:</span> <span class="s">"05"</span><span class="p">,</span> <span class="c1"># bad OCR, should be "May"
+</span><span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="big-ugly-regular-expressions">Big, Ugly Regular Expressions</h1>
+
+<p>The script relies on two regular expressions to do its work.  They’re big, they’re ugly, they’re poorly tested, and they match a lot more than they are intended to match, but this script would be useless without them.  In a later draft of this post, and a later version of the script, I will rewrite the regular expressions with the <a href="https://docs.python.org/3/library/re.html#re.X" target="_blank" rel="noopener noreferrer">verbose flag</a>, which they obviously need.  I decided to demonstrate the version of the regexes the script actually uses.</p>
+
+<h2 id="the-summary-header-pattern">The Summary Header Pattern</h2>
+
+<p>This regular expression (usually) matches the first line of a bill summary and <a href="https://en.wikipedia.org/wiki/Regular_expression#Examples" target="_blank" rel="noopener noreferrer">groups (see the second row of the table)</a> parts of the line that will be extracted into a starter CSV metadata file.  The abundance of punctuation options has to do primarily with inconsistency in how OCR recognizes the punctuation characters in the original text, but there is also some inconsistency in how the original text is punctuated.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">HEADER_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s">"(((?:S|H)\.? ?(?:R\.?)? (?:J\.? Res\. ?)?)(\w{1,5})\.? ((?:M(?:rs?|essrs)\.) .+?)(?:[;,:])? (\w{1,9} \d{1,2}[.,] \d{4})[.—]? ?\n?(?:\((['0-9a-zA-Z ]+)\))?(?:\.|.+\.|:|.+:)?)"</span><span class="p">,</span>
+    <span class="n">re</span><span class="p">.</span><span class="n">MULTILINE</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div></div>
+<p>The regex captures the bill type, bill number, sponsors, date of introduction, committee, and text of the bill summary.  It also captures the entire first line of the summary.</p>
+
+<h2 id="the-date-pattern">The Date Pattern</h2>
+
+<p>This regular expression is intended to match dates like the following: <code class="language-plaintext highlighter-rouge">January 16, 1936</code>.  The year is optional.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">DATE_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="sa">r</span><span class="s">"([JFMASOND][a-z]{2,8}\.?) (\d{1,2})[-—.,;: ]( \d{4})?"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h1 id="functions">Functions</h1>
+
+<p>Now we turn our attention to the functions that will be called in the main body of the script.</p>
+
+<h2 id="argument-parsing">Argument Parsing</h2>
+
+<p>Here, we use the <a href="https://docs.python.org/3/library/argparse.html" target="_blank" rel="noopener noreferrer">argparse</a> package to handle three command line arguments: the name of the file, the page to start from, and the page to end on.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">parse_args</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="p">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="p">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s">"file_path"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">"path to a bill digest PDF, e.g., ../74_2.pdf"</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="p">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s">"start_page"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s">"PDF page number (not printed page number) for where program should start working"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="p">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s">"end_page"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s">"last PDF page number (not printed page number) program should process"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s">"?"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="p">.</span><span class="n">parse_args</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h2 id="naming-the-csv-data-file">Naming the CSV data file</h2>
+
+<p>The CSV file we generate needs a meaningful name, e.g., <code class="language-plaintext highlighter-rouge">74_2_7_8.csv</code>, that is, the Congress and Session (<code class="language-plaintext highlighter-rouge">74_2</code>, which we get from the file stem of the PDF file we’re processing, followed by the start page and the end page (if one is specified).</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">name_output_file</span><span class="p">(</span><span class="n">file_stem</span><span class="p">,</span> <span class="n">start_page</span><span class="p">,</span> <span class="n">end_page</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">end_page</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">"_"</span><span class="p">.</span><span class="n">join</span><span class="p">([</span><span class="n">file_stem</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">start_page</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">end_page</span><span class="p">)])</span> <span class="o">+</span> <span class="s">".csv"</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">"_"</span><span class="p">.</span><span class="n">join</span><span class="p">([</span><span class="n">file_stem</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">start_page</span><span class="p">)])</span> <span class="o">+</span> <span class="s">".csv"</span>
+</code></pre></div></div>
+
+<h2 id="getting-the-data">Getting the Data</h2>
+
+<p>This is where most of the work happens.  The function could and should probably be broken out into some smaller functions, but it works.  See the comments in the function definition for details, and the <a href="https://more-itertools.readthedocs.io/en/stable/api.html#more_itertools.chunked" target="_blank" rel="noopener noreferrer">more<sub>itertools</sub> chunked documentation</a> for information about the use of that function.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">extract_summaries_and_metadata</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">start_page</span><span class="p">,</span> <span class="n">end_page</span><span class="p">):</span>
+    <span class="c1"># Set up some empty containers for our data
+</span>    <span class="n">metadata</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">summaries</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">text_file_names</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1"># Instantiate the PdfReader object
+</span>    <span class="n">reader</span> <span class="o">=</span> <span class="n">PdfReader</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="c1"># Get the file stem, e.g., 74_2
+</span>    <span class="n">file_stem</span> <span class="o">=</span> <span class="n">file_path</span><span class="p">.</span><span class="n">stem</span>
+    
+    <span class="c1"># Handle the presence of absence of an ending page number
+</span>    <span class="k">if</span> <span class="n">end_page</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">start_page</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">end_page</span>
+    
+    <span class="c1"># Iterate over page numbers
+</span>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_page</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="c1"># Get the text from each page
+</span>        <span class="n">page_text</span> <span class="o">=</span> <span class="n">reader</span><span class="p">.</span><span class="n">pages</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">extract_text</span><span class="p">()</span>
+    
+        <span class="c1"># Find the first line that matches HEADER_PATTERN from above
+</span>        <span class="n">first_header_pos</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="n">search</span><span class="p">(</span><span class="n">HEADER_PATTERN</span><span class="p">,</span> <span class="n">page_text</span><span class="p">).</span><span class="n">start</span><span class="p">()</span>
+        <span class="c1"># Get the text from that point on
+</span>        <span class="n">page_text</span> <span class="o">=</span> <span class="n">page_text</span><span class="p">[</span><span class="n">first_header_pos</span><span class="p">:]</span>
+        <span class="c1"># Split the text based on the header pattern
+</span>        <span class="n">raw_summaries</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="n">HEADER_PATTERN</span><span class="p">,</span> <span class="n">page_text</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="c1"># Group the summaries
+</span>        <span class="n">raw_summaries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chunked</span><span class="p">(</span><span class="n">raw_summaries</span><span class="p">,</span> <span class="n">ELEMENT_COUNT</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">raw_summaries</span><span class="p">:</span>
+        <span class="c1"># Give a name to each grouped piece of each summary
+</span>        <span class="n">header</span><span class="p">,</span> <span class="n">bill_type</span><span class="p">,</span> <span class="n">bill_number</span><span class="p">,</span> <span class="n">sponsor</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">committee</span><span class="p">,</span> <span class="n">text</span> <span class="o">=</span> <span class="n">item</span>
+        <span class="c1"># Normalize the bill type formatting
+</span>        <span class="n">formatted_bill_type</span> <span class="o">=</span> <span class="n">bill_type</span><span class="p">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="c1"># Normalize bill type for the summary text file name
+</span>        <span class="n">lower_bill_type</span> <span class="o">=</span> <span class="n">bill_type</span><span class="p">.</span><span class="n">lower</span><span class="p">().</span><span class="n">replace</span><span class="p">(</span><span class="s">" "</span><span class="p">,</span> <span class="s">""</span><span class="p">).</span><span class="n">replace</span><span class="p">(</span><span class="s">"."</span><span class="p">,</span> <span class="s">""</span><span class="p">)</span>
+        <span class="c1"># Concatenate the summary header and summary text
+</span>        <span class="n">summary</span> <span class="o">=</span> <span class="n">header</span> <span class="o">+</span> <span class="n">text</span>
+        <span class="c1"># Add a row of metadata to the list
+</span>        <span class="n">metadata</span><span class="p">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">formatted_bill_type</span><span class="p">,</span> <span class="n">bill_number</span><span class="p">,</span> <span class="n">sponsor</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">committee</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="c1"># Add a summary to the list
+</span>        <span class="n">summaries</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
+        <span class="c1"># Add the name of the text file to the list
+</span>        <span class="n">text_file_names</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">file_stem</span><span class="si">}</span><span class="s">_</span><span class="si">{</span><span class="n">lower_bill_type</span><span class="si">}{</span><span class="n">bill_number</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+    <span class="c1"># return a tuple of lists of data
+</span>    <span class="k">return</span> <span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">summaries</span><span class="p">,</span> <span class="n">text_file_names</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="dates">Dates</h2>
+
+<p>Here’s an example of a bill summary in the original PDF:<br>
+<img src="/assets/bill.png" alt="Bill Summary"></p>
+
+<p>And here’s what it looks like after processing:</p>
+<blockquote>
+  <p>S. 1019. Mr. King; January 15, 1935 (District of Columbia).<br>
+As passed by the Senate, February 12, and referred to House Committee on the District of Columbia. February 15, 1935:<br>
+Requires real estate brokers and salesmen in the District of Columbia (including nonresidents but excluding auctioneers, banks, trust companies, building and loan associations or land-mortgage or farm-loan associations) to secure annual licenses from a real estate commission hereby established (composed of three members—two appointed by the Commissioners and the assessor ex-officio). Applicants for licenses must be 21 years old, able to read and write English and must give proof of trustworthiness and competence in the business (not required if applicant has 2 years experience as a broker, etc., or in connection with real estate business in the District of Columbia). Bond required—$2,500 for brokers, $1,000 for salesmen—running to the District of Columbia; and a fee for broker’s license of $25 or $5 for salesman’s license. License may be revoked by the Commission, upon its own motion or on a verified complaint, after a hearing, for any fraudulent or dishonest dealing or conviction of a crime involving fraud or dishonesty. Revocation of a broker’s license suspends the license of every salesman under him.</p>
+</blockquote>
+
+<p>You’ll notice that there are multiple dates specified.  The date from the first line goes into the CSV file, but we want the latest action to go into the name of the text file for each summary.  The function below handles that.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">format_latest_action_dates</span><span class="p">(</span><span class="n">summaries</span><span class="p">):</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">date_tags</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">intro_dates</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">summary</span> <span class="ow">in</span> <span class="n">summaries</span><span class="p">:</span>
+        <span class="c1"># Break the summary text into lines
+</span>        <span class="n">lines</span> <span class="o">=</span> <span class="n">summary</span><span class="p">.</span><span class="n">splitlines</span><span class="p">()</span>
+        <span class="c1"># Get the date on the first
+</span>        <span class="n">intro_dates</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">re</span><span class="p">.</span><span class="n">findall</span><span class="p">(</span><span class="n">DATE_PATTERN</span><span class="p">,</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># If there is more than one line in the summary, store the second line, otherwise, store an empty string
+</span>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">actions</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">actions</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">""</span><span class="p">)</span>
+    
+    <span class="c1"># Process the second line of each summary
+</span>    <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
+        <span class="c1"># Get the whole date the bill was introduced
+</span>        <span class="n">intro_date</span> <span class="o">=</span> <span class="n">intro_dates</span><span class="p">[</span><span class="n">actions</span><span class="p">.</span><span class="n">index</span><span class="p">(</span><span class="n">action</span><span class="p">)]</span>
+        <span class="c1"># Get the year from that date
+</span>        <span class="n">intro_year</span> <span class="o">=</span> <span class="n">intro_date</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="c1"># Find all the dates in the second line of the summary
+</span>        <span class="n">dates</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="n">findall</span><span class="p">(</span><span class="n">DATE_PATTERN</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+        <span class="c1"># If there are dates in the second line, handle that
+</span>        <span class="k">if</span> <span class="n">dates</span><span class="p">:</span>
+            <span class="c1"># Sometimes no years are specified in the second line of the summary, as in the example above
+</span>            <span class="n">default_year</span> <span class="o">=</span> <span class="n">dates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="ow">or</span> <span class="n">intro_year</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">date</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">""</span><span class="p">:</span>
+                <span class="n">date</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_year</span>
+            <span class="c1"># Default to the year the bill was introduced
+</span>          <span class="k">else</span><span class="p">:</span>
+              <span class="n">date</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">intro_date</span><span class="p">)</span>
+          <span class="c1"># Convert the month text to a two digit numerical string
+</span>          <span class="n">date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">MONTHS</span><span class="p">[</span><span class="n">date</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+          <span class="c1"># Create the date string that will go into the name of the text file
+</span>          <span class="n">date_tag</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">date</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">strip</span><span class="p">()</span><span class="si">}{</span><span class="n">date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}{</span><span class="n">date</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s">"</span>
+          <span class="n">date_tags</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">date_tag</span><span class="p">)</span>
+    
+      <span class="k">return</span> <span class="n">date_tags</span>
+</code></pre></div></div>
+
+<h2 id="output-file-names">Output File Names</h2>
+
+<p>Here’s how we name the text file associated with each summary.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">format_output_files</span><span class="p">(</span><span class="n">text_file_names</span><span class="p">,</span> <span class="n">date_tags</span><span class="p">):</span>
+    <span class="c1"># If the number of text file base names and the number of date tags doesn't match, we've got a problem
+</span>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">text_file_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">date_tags</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"Text files names list and date tags list are not the same length."</span><span class="p">)</span>
+        <span class="n">sys</span><span class="p">.</span><span class="nb">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># Zip the text file base names and date strings together, join them with "_", and add the ".txt" extension
+</span>    <span class="n">filenames</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">name</span><span class="p">:</span> <span class="s">"_"</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s">".txt"</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">text_file_names</span><span class="p">,</span> <span class="n">date_tags</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="writing-out-the-files">Writing out the files</h2>
+
+<p>Here’s how we write the files to disk.</p>
+
+<h3 id="writing-the-csv-file">Writing the CSV File</h3>
+
+<p>This is decently straightforward thanks to the <a href="https://docs.python.org/3/library/csv.html" target="_blank" rel="noopener noreferrer">csv</a> module in the python standard library.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">write_metadata</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">output_file_name</span><span class="p">,</span> <span class="n">congress</span><span class="p">):</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">"congress"</span><span class="p">,</span>
+        <span class="s">"session"</span><span class="p">,</span>
+        <span class="s">"pl_num"</span><span class="p">,</span>
+        <span class="s">"bill_type"</span><span class="p">,</span>
+        <span class="s">"bill_number"</span><span class="p">,</span>
+        <span class="s">"sponsor"</span><span class="p">,</span>
+        <span class="s">"committee"</span><span class="p">,</span>
+        <span class="s">"action_red"</span><span class="p">,</span>
+        <span class="s">"summary_version_code"</span><span class="p">,</span>
+        <span class="s">"report_number"</span><span class="p">,</span>
+        <span class="s">"action"</span><span class="p">,</span>
+        <span class="s">"action_date"</span><span class="p">,</span>
+        <span class="s">"associated_summary_file"</span><span class="p">,</span>
+        <span class="s">"questions_comments"</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file_name</span><span class="p">,</span> <span class="s">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="p">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+        <span class="n">writer</span><span class="p">.</span><span class="n">writeheader</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+            <span class="n">writer</span><span class="p">.</span><span class="n">writerow</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s">"congress"</span><span class="p">:</span> <span class="n">congress</span><span class="p">,</span>
+                    <span class="s">"session"</span><span class="p">:</span> <span class="s">""</span><span class="p">,</span>
+                    <span class="s">"pl_num"</span><span class="p">:</span> <span class="s">""</span><span class="p">,</span>
+                    <span class="s">"bill_type"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s">"bill_number"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="s">"sponsor"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                    <span class="s">"committee"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="ow">or</span> <span class="s">"N/A"</span><span class="p">,</span>
+                    <span class="s">"action_red"</span><span class="p">:</span> <span class="s">""</span><span class="p">,</span>
+                    <span class="s">"summary_version_code"</span><span class="p">:</span> <span class="s">""</span><span class="p">,</span>
+                    <span class="s">"report_number"</span><span class="p">:</span> <span class="s">""</span><span class="p">,</span>
+                    <span class="s">"action"</span><span class="p">:</span> <span class="s">"Introduced"</span><span class="p">,</span>
+                    <span class="s">"action_date"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+                    <span class="s">"associated_summary_file"</span><span class="p">:</span> <span class="s">""</span><span class="p">,</span>
+                    <span class="s">"questions_comments"</span><span class="p">:</span> <span class="s">""</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+</code></pre></div></div>
+
+<h3 id="writing-the-summary-files">Writing the Summary Files</h3>
+
+<p>This is the most straightforward function in the script.  Essentially, we iterate over the summaries and match them up with the text file names we created.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">write_summaries</span><span class="p">(</span><span class="n">summaries</span><span class="p">,</span> <span class="n">text_file_names</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">summaries</span><span class="p">)):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">text_file_names</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">summaries</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</code></pre></div></div>
+
+<h1 id="putting-it-all-together">Putting it all together</h1>
+
+<p>Now we actually do what we set out to do.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="n">file_path</span>
+    <span class="n">start_page</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="n">start_page</span>
+    <span class="n">start_page_index</span> <span class="o">=</span> <span class="n">start_page</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">end_page</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="n">end_page</span>
+
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">file_stem</span> <span class="o">=</span> <span class="n">file_path</span><span class="p">.</span><span class="n">stem</span>
+    <span class="n">output_file_name</span> <span class="o">=</span> <span class="n">name_output_file</span><span class="p">(</span><span class="n">file_stem</span><span class="p">,</span> <span class="n">start_page</span><span class="p">,</span> <span class="n">end_page</span><span class="p">)</span>
+
+    <span class="n">congress</span> <span class="o">=</span> <span class="n">file_stem</span><span class="p">[:</span><span class="n">CONGRESS_POSITION</span><span class="p">]</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">file_stem</span><span class="p">[</span><span class="n">SESSION_POSITION</span><span class="p">]</span>
+
+    <span class="n">metadata</span><span class="p">,</span> <span class="n">summaries</span><span class="p">,</span> <span class="n">text_file_names</span> <span class="o">=</span> <span class="n">extract_summaries_and_metadata</span><span class="p">(</span>
+        <span class="n">file_path</span><span class="p">,</span> <span class="n">start_page_index</span><span class="p">,</span> <span class="n">end_page</span>
+    <span class="p">)</span>
+
+    <span class="n">action_dates</span> <span class="o">=</span> <span class="n">format_latest_action_dates</span><span class="p">(</span><span class="n">summaries</span><span class="p">)</span>
+    <span class="n">output_file_names</span> <span class="o">=</span> <span class="n">format_output_files</span><span class="p">(</span><span class="n">text_file_names</span><span class="p">,</span> <span class="n">action_dates</span><span class="p">)</span>
+
+    <span class="n">write_metadata</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">output_file_name</span><span class="p">,</span> <span class="n">congress</span><span class="p">)</span>
+    <span class="n">write_summaries</span><span class="p">(</span><span class="n">summaries</span><span class="p">,</span> <span class="n">output_file_names</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+<h1 id="up-next">Up next</h1>
+
+<p>Now it’s time for the manual work.  In the next post, I’ll detail how I use GNU Emacs to review each text file and Google Sheets to input additional metadata about each bill.</p>
+
+
+  </div>
+<a class="u-url" href="/2022/11/24/get-summaries.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">William Blackerby</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">William Blackerby</li>
+<li><a class="u-email" href="mailto:wmblackerby@gmail.com">wmblackerby@gmail.com</a></li>
+</ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+<ul class="social-media-list"><li><a href="https://github.com/blackerby" target="_blank" rel="noopener noreferrer"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">blackerby</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>William Blackerby's home on the web.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

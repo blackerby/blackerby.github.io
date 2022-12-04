@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Visualizing Topics of 74th Congress Senate Bills and Joint Resolutions | William Blackerby</title>
+<meta name="generator" content="Jekyll v4.2.1" />
+<meta property="og:title" content="Visualizing Topics of 74th Congress Senate Bills and Joint Resolutions" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="With this post, I’m taking a break from my metadata workflow series to write about something that might come at the end of such a workflow: using topic modeling to analyze a text corpus." />
+<meta property="og:description" content="With this post, I’m taking a break from my metadata workflow series to write about something that might come at the end of such a workflow: using topic modeling to analyze a text corpus." />
+<link rel="canonical" href="https://blackerby.github.io/2022/12/02/senate-topic-modeling.html" />
+<meta property="og:url" content="https://blackerby.github.io/2022/12/02/senate-topic-modeling.html" />
+<meta property="og:site_name" content="William Blackerby" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-12-02T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Visualizing Topics of 74th Congress Senate Bills and Joint Resolutions" />
+<script type="application/ld+json">
+{"description":"With this post, I’m taking a break from my metadata workflow series to write about something that might come at the end of such a workflow: using topic modeling to analyze a text corpus.","headline":"Visualizing Topics of 74th Congress Senate Bills and Joint Resolutions","dateModified":"2022-12-02T00:00:00+00:00","url":"https://blackerby.github.io/2022/12/02/senate-topic-modeling.html","datePublished":"2022-12-02T00:00:00+00:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blackerby.github.io/2022/12/02/senate-topic-modeling.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blackerby.github.io/feed.xml" title="William Blackerby" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper">
+<a class="site-title" rel="author" href="/">William Blackerby</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger">
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewbox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav>
+</div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Visualizing Topics of 74th Congress Senate Bills and Joint Resolutions</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2022-12-02T00:00:00+00:00" itemprop="datePublished">Dec 2, 2022
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>With this post, I’m taking a break from my <a href="https://blackerby.github.io/workflow-series/">metadata workflow series</a> to write about something that might come at the end of such a workflow: using <a href="https://en.wikipedia.org/wiki/Topic_model" target="_blank" rel="noopener noreferrer">topic modeling</a> to analyze a text corpus.</p>
+
+<p>In my digital libraries class this semester, we have been studying the application of machine learning tools to text analysis problems. For practice, I decided to apply one of those tools, topic modeling, to the corpus of 74th Congress Senate bills and join resolutions I processed during my remote metadata internship with the Law Library of Congress.</p>
+
+<h2 id="setting-up">Setting Up</h2>
+
+<h3 id="the-necessary-libraries">The Necessary Libraries</h3>
+
+<p>Below, we load the libraries this project uses into my work environment. <code class="language-plaintext highlighter-rouge">tidyverse</code>, <code class="language-plaintext highlighter-rouge">tidytext</code>, and <code class="language-plaintext highlighter-rouge">ggplot2</code> are pretty well know inhabitants of the R Tidyverse, so I won’t explain them here. <a href="https://www.structuraltopicmodel.com/" target="_blank" rel="noopener noreferrer">stm</a> is the package used in this project for topic modeling. <a href="https://github.com/cpsievert/LDAvis" target="_blank" rel="noopener noreferrer">LDAvis</a> is the tool we will use to visualize the <a href="https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation" target="_blank" rel="noopener noreferrer">LDA</a> model applied to Senate bill corpus. <a href="http://quanteda.io/" target="_blank" rel="noopener noreferrer">quanteda</a> is a text analysis library, and <a href="https://spacyr.quanteda.io/index.html" target="_blank" rel="noopener noreferrer">spacyr</a> is an R wrapper for the Python natural language processing library <a href="https://spacy.io/" target="_blank" rel="noopener noreferrer">spaCy</a>. <a href="https://github.com/ropensci/gistr" target="_blank" rel="noopener noreferrer">gistr</a> is necessary for publishing the visualization to the web.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">tidyverse</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">tidytext</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">stm</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">LDAvis</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">quanteda</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">spacyr</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">gistr</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="initializing-spacy">Initializing spaCy</h3>
+
+<p>Below, we initialize spaCy with its built-in English language model.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">spacy_initialize</span><span class="p">(</span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"en_core_web_sm"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="load-dataset">Load dataset</h3>
+
+<p>The data we will use is available for download as a CSV file from a simple API created using Datasette. I have crafted a SQL query to get just the data that we need. This query will return a table containing each bill summary’s unique ID in the database and its text.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read.csv</span><span class="p">(</span><span class="s2">"https://llc.herokuapp.com/summaries.csv?sql=select%0D%0A++rowid%2C%0D%0A++content_text%0D%0Afrom%0D%0A++files%0D%0Awhere%0D%0A++%22path%22+like+%2274_2_s%25%22%0D%0Aorder+by%0D%0A++path&amp;_size=max"</span><span class="p">)</span><span class="w">
+</span><span class="n">head</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="preprocessing">Preprocessing</h2>
+
+<p>With the environment set up and the data acquired, we can start massaging the data into the shape the topic modeling algorithm needs.</p>
+
+<h3 id="spacy">spaCy</h3>
+
+<p>First, we put the text of all the bills we downloaded into one big string which we then use spaCy to parse.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">text</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data</span><span class="o">$</span><span class="n">content_text</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> </span><span class="n">str_c</span><span class="p">()</span><span class="w">
+</span><span class="n">parsed_text</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">spacy_parse</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">lemma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">entity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">nounphrase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span><span class="n">head</span><span class="p">(</span><span class="n">parsed_text</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="getting-the-words-we-want">Getting the words we want</h3>
+
+<p>Next, we reduce the corpus to tokens that have been <a href="https://en.wikipedia.org/wiki/Part-of-speech_tagging" target="_blank" rel="noopener noreferrer">part-of-speech tagged</a> as proper nouns, verbs, nouns, adjectives, and adverbs. The part-of-speech tagging isn’t perfect, so we remove tokens tagged as those parts of speech that we know aren’t, actually. Finally, make all of the lemmas lowercase and create the <code class="language-plaintext highlighter-rouge">word</code> column.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tokens</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">parsed_text</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">filter</span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"PROPN"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"VERB"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"NOUN"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"ADJ"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"ADV"</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">filter</span><span class="p">(</span><span class="n">lemma</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s2">"."</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">lemma</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s2">"Mr."</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">str_detect</span><span class="p">(</span><span class="n">lemma</span><span class="p">,</span><span class="w"> </span><span class="s2">"^\\w\\.?$"</span><span class="p">,</span><span class="w"> </span><span class="n">negate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">filter</span><span class="p">(</span><span class="n">lemma</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s2">"§"</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">word</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tolower</span><span class="p">(</span><span class="n">lemma</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Next we get rid of <a href="https://en.wikipedia.org/wiki/Stop_word" target="_blank" rel="noopener noreferrer">stop words</a></p>
+
+<pre><code class="language-{r}">data("stop_words")
+tokens &lt;- tokens %&gt;% anti_join(stop_words)
+</code></pre>
+
+<p>And now we can take a quick look at the tokens that appear more than 100 times in the bill summaries.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tokens</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">count</span><span class="p">(</span><span class="n">word</span><span class="p">,</span><span class="w"> </span><span class="n">sort</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">filter</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="m">100</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">word</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reorder</span><span class="p">(</span><span class="n">word</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">ggplot</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">word</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_col</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">labs</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">NULL</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The names of months show up a lot, but they won’t contribute meaningfully to the topic model. Let’s get rid of them…</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">month_tokens</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">tibble</span><span class="p">(</span><span class="nb">month.name</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">unnest_tokens</span><span class="p">(</span><span class="n">word</span><span class="p">,</span><span class="w"> </span><span class="nb">month.name</span><span class="p">)</span><span class="w">
+
+</span><span class="n">tokens</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">tokens</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> </span><span class="n">anti_join</span><span class="p">(</span><span class="n">month_tokens</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>…and see what our chart looks like now</p>
+
+<pre><code class="language-{r}">tokens %&gt;%
+  count(word, sort = TRUE) %&gt;% 
+  filter(n &gt; 100) %&gt;% 
+  mutate(word = reorder(word, n)) %&gt;% 
+  ggplot(aes(n, word)) +
+  geom_col() +
+  labs(y = NULL)
+</code></pre>
+
+<p>This is better, but there’s more we can do. First, let’s remove some more words that might clutter our model.</p>
+
+<p>These calls bring the text of bill types and the names of sponsors identified in the original document into the environment.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">bill_types</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read.csv</span><span class="p">(</span><span class="s2">"https://llc.herokuapp.com/summaries.csv?sql=select+distinct+bill_type+from+actions&amp;_size=max"</span><span class="p">)</span><span class="w">
+</span><span class="n">sponsors</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read.csv</span><span class="p">(</span><span class="s2">"https://llc.herokuapp.com/summaries.csv?sql=select+distinct+sponsor+from+actions+where+sponsor+is+not+null+and+sponsor+%21%3D+%22%22&amp;_size=max"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>We can now make that text tokens</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">bill_type_tokens</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">bill_types</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">unnest_tokens</span><span class="p">(</span><span class="n">word</span><span class="p">,</span><span class="w"> </span><span class="n">bill_type</span><span class="p">)</span><span class="w">
+</span><span class="n">sponsor_tokens</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">sponsors</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">unnest_tokens</span><span class="p">(</span><span class="n">word</span><span class="p">,</span><span class="w"> </span><span class="n">sponsor</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>and remove them from our corpus.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tokens</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">tokens</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">anti_join</span><span class="p">(</span><span class="n">bill_type_tokens</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">anti_join</span><span class="p">(</span><span class="n">sponsor_tokens</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>How does our chart look now?</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tokens</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">count</span><span class="p">(</span><span class="n">word</span><span class="p">,</span><span class="w"> </span><span class="n">sort</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">filter</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="m">100</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">word</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reorder</span><span class="p">(</span><span class="n">word</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">ggplot</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">word</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_col</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">labs</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">NULL</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>It doesn’t look like any change, but we have reduced the number of tokens in our corpus. I think we’re in good enough shape to do our topic modeling.</p>
+
+<h2 id="topic-modeling">Topic Modeling</h2>
+
+<h3 id="a-document-feature-matrix">A document feature matrix</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">stm()</code> function exposed by the <code class="language-plaintext highlighter-rouge">stm</code> package can’t take our data frame as input. Instead, it needs a <a href="https://en.wikipedia.org/wiki/Document-term_matrix" target="_blank" rel="noopener noreferrer">document-term matrix</a>, in this case in the form of a document-feature matrix, which we create with the <code class="language-plaintext highlighter-rouge">tidytext</code> <code class="language-plaintext highlighter-rouge">cast_dfm()</code> function.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dfm</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">tokens</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">count</span><span class="p">(</span><span class="n">doc_id</span><span class="p">,</span><span class="w"> </span><span class="n">word</span><span class="p">,</span><span class="w"> </span><span class="n">sort</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">cast_dfm</span><span class="p">(</span><span class="n">doc_id</span><span class="p">,</span><span class="w"> </span><span class="n">word</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>We’re ready to apply the model! I’ve set k, the number of topics, as 48 because there were 48 Senate committees in 74th Congress. The following line of code takes a few minutes to finish executing.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">model</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">stm</span><span class="p">(</span><span class="n">dfm</span><span class="p">,</span><span class="w"> </span><span class="n">K</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">48</span><span class="p">,</span><span class="w"> </span><span class="n">init.type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"LDA"</span><span class="p">,</span><span class="w"> </span><span class="n">seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1234</span><span class="p">,</span><span class="w"> </span><span class="n">verbose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="visualization">Visualization</h3>
+
+<p>Before we can visualize our model with <code class="language-plaintext highlighter-rouge">LDAvis</code>, we need to put our document-term matrix into a form that <code class="language-plaintext highlighter-rouge">toLDAvis</code>, an <code class="language-plaintext highlighter-rouge">stm</code>-provided wrapper around <code class="language-plaintext highlighter-rouge">LDAvis</code>, can understand. We do that with the call to <code class="language-plaintext highlighter-rouge">convert()</code> below. The call to <code class="language-plaintext highlighter-rouge">toLDAvis</code> creates the visualization as a static website and publishes it online.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lda</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">convert</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dfm</span><span class="p">,</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"lda"</span><span class="p">)</span><span class="w">
+
+</span><span class="n">ldavis</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">toLDAvis</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">lda</span><span class="o">$</span><span class="n">documents</span><span class="p">,</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">48</span><span class="p">,</span><span class="w">
+		   </span><span class="n">open.browser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">interactive</span><span class="p">(),</span><span class="w">
+		   </span><span class="n">as.gist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>You can see the final product <a href="https://bl.ocks.org/blackerby/raw/def5c205228616e8e0e6cc0945bd9f4f/#topic=0&amp;lambda=1&amp;term=" target="_blank" rel="noopener noreferrer">here</a>.</p>
+
+<h2 id="wrapping-up">Wrapping up</h2>
+
+<p>Poking around in the visualization a little bit, it becomes clear that there’s some more refinement of our data we could do, e.g., removing any token with a numeral in it, removing more honorifics than just “Mr.”, and perhaps removing the names of actions like “approve”, “pass”, and “refer”. That said, I think that this visualization does offer a good sense of the topics under discussion in various Senate committees in the 74th, and creating it was a great skill-building exercise.</p>
+
+  </div>
+<a class="u-url" href="/2022/12/02/senate-topic-modeling.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">William Blackerby</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">William Blackerby</li>
+<li><a class="u-email" href="mailto:wmblackerby@gmail.com">wmblackerby@gmail.com</a></li>
+</ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+<ul class="social-media-list"><li><a href="https://github.com/blackerby" target="_blank" rel="noopener noreferrer"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">blackerby</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>William Blackerby's home on the web.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>(meta)data(sette) | William Blackerby</title>
+<meta name="generator" content="Jekyll v4.2.1" />
+<meta property="og:title" content="(meta)data(sette)" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This post is part of my Metadata Workflow Series." />
+<meta property="og:description" content="This post is part of my Metadata Workflow Series." />
+<link rel="canonical" href="https://blackerby.github.io/2022/12/04/meta-data-sette.html" />
+<meta property="og:url" content="https://blackerby.github.io/2022/12/04/meta-data-sette.html" />
+<meta property="og:site_name" content="William Blackerby" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-12-04T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="(meta)data(sette)" />
+<script type="application/ld+json">
+{"description":"This post is part of my Metadata Workflow Series.","headline":"(meta)data(sette)","dateModified":"2022-12-04T00:00:00+00:00","url":"https://blackerby.github.io/2022/12/04/meta-data-sette.html","datePublished":"2022-12-04T00:00:00+00:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blackerby.github.io/2022/12/04/meta-data-sette.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blackerby.github.io/feed.xml" title="William Blackerby" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper">
+<a class="site-title" rel="author" href="/">William Blackerby</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger">
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewbox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav>
+</div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">(meta)data(sette)</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2022-12-04T00:00:00+00:00" itemprop="datePublished">Dec 4, 2022
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>This post is part of my <a href="https://blackerby.github.io/workflow-series/">Metadata Workflow Series</a>.</p>
+
+<h2 id="intro">Intro</h2>
+
+<p>After running <a href="https://blackerby.github.io/2022/11/25/cleanup.html">cleanup.sh</a> I like to make a local copy of it as a tab-separated file I can do various things with, including storing it in SQLite database with <a href="https://datasette.io/" target="_blank" rel="noopener noreferrer">Datasette</a> which, among other things, allows me to link the metadata with their associated text files.</p>
+
+<h2 id="the-code">The Code</h2>
+
+<p>As usual, it’s a shell script.</p>
+
+<div class="language-zsh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env zsh</span>
+</code></pre></div></div>
+
+<p>I use <a href="https://www.gnu.org/software/wget/" target="_blank" rel="noopener noreferrer">wget</a> to save the data to my local machine. Getting the URL right took a little Googling and turned up this great answer on <a href="https://stackoverflow.com/a/28494469" target="_blank" rel="noopener noreferrer">Stack Overflow</a>. The spreadsheet has to be published to the web in order for this to work.</p>
+
+<div class="language-zsh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget <span class="nt">-q</span> <span class="nt">-O</span> ./all_data.tsv https://docs.google.com/spreadsheets/d/e/2PACX-1vQkoFBuqjcBX-a_xT3IfTmLmUJ0LZme8Mj16sIdqqEC9Z_vPmyHJKiTCRrZHPaSsxI-4lKaLkWD_XSk/pub<span class="se">\?</span>gid<span class="se">\=</span>0<span class="se">\&amp;</span>single<span class="se">\=</span><span class="nb">true</span><span class="se">\&amp;</span>output<span class="se">\=</span>tsv
+</code></pre></div></div>
+
+<h3 id="the-database">The Database</h3>
+
+<p>I then (re)create the SQLite database containing the bill metadata and the summary text files using Simon Willison’s extraordinarily easy to use <a href="https://sqlite-utils.datasette.io/en/stable/" target="_blank" rel="noopener noreferrer">sqlite-utils</a>.</p>
+
+<p>First, I drop the existing tables that hold the core data.</p>
+
+<div class="language-zsh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sqlite-utils drop-table summaries.db actions
+sqlite-utils drop-table summaries.db files
+</code></pre></div></div>
+
+<p>Then I recreate the <code class="language-plaintext highlighter-rouge">actions</code> table, which is the table that holds the bill metadata</p>
+
+<div class="language-zsh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sqlite-utils insert summaries.db actions all_data.tsv <span class="nt">--tsv</span> <span class="nt">-d</span>
+</code></pre></div></div>
+
+<p>I rename the columns for from the spreadsheet for use in the database. There may be a better way to do this, but this works.</p>
+
+<div class="language-zsh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sqlite-utils transform summaries.db actions <span class="nt">--rename</span> <span class="s2">"Congress"</span> <span class="s2">"congress"</span> <span class="nt">--rename</span> <span class="s2">"Session"</span> <span class="s2">"session"</span> <span class="nt">--rename</span> <span class="s2">"PL Num (if applicable)/PVTL Num"</span> <span class="s2">"pl_num"</span> <span class="nt">--rename</span> <span class="s2">"Bill Type"</span> <span class="s2">"bill_type"</span> <span class="nt">--rename</span> <span class="s2">"Bill Number "</span> <span class="s2">"bill_number"</span> <span class="nt">--rename</span> <span class="s2">"Sponsor"</span> <span class="s2">"sponsor"</span> <span class="nt">--rename</span> <span class="s2">"Committee"</span> <span class="s2">"committee"</span> <span class="nt">--drop</span> <span class="s2">"Action Code"</span> <span class="nt">--drop</span> <span class="s2">"Summary Version Code"</span> <span class="nt">--drop</span> <span class="s2">"Report Number"</span> <span class="nt">--rename</span> <span class="s2">"Action"</span> <span class="s2">"action"</span> <span class="nt">--rename</span> <span class="s2">"Action Date"</span> <span class="s2">"action_date"</span> <span class="nt">--rename</span> <span class="s2">"Associated Summary Text File Name"</span> <span class="s2">"summary_text_file_name"</span> <span class="nt">--rename</span> <span class="s2">"Questions/Comments"</span> <span class="s2">"questions_comments"</span>
+</code></pre></div></div>
+
+<p>Now I insert all the text file summaries on my local machine into the database.</p>
+
+<div class="language-zsh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sqlite-utils insert-files <span class="nt">--text</span> summaries.db files 74<span class="k">*</span>/<span class="k">*</span>.txt
+</code></pre></div></div>
+
+<p>This ends up saving the directory name and file name in the <code class="language-plaintext highlighter-rouge">files</code> tables’s <code class="language-plaintext highlighter-rouge">path</code> column. We just want the file name since that’s what is recorded in the <code class="language-plaintext highlighter-rouge">actions</code> table. The following fixes that for us.</p>
+
+<div class="language-zsh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sqlite-utils convert summaries.db files path <span class="s1">'value.split("/")[1]'</span>
+</code></pre></div></div>
+
+<p>Now we can link up the two tables</p>
+
+<div class="language-zsh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sqlite-utils add-foreign-key summaries.db actions summary_text_file_name files path <span class="nt">--ignore</span>
+</code></pre></div></div>
+
+<p>and publish the database as an app on Heroku.</p>
+
+<div class="language-zsh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>datasette publish heroku summaries.db <span class="nt">--name</span> <span class="s2">"llc"</span> <span class="nt">--tar</span> <span class="s2">"/usr/local/bin/gtar"</span> <span class="nt">--install</span><span class="o">=</span>datasette-saved-queries
+</code></pre></div></div>
+
+<h3 id="local-copies-of-the-data">Local Copies of the Data</h3>
+
+<p>Next I massage the data a little bit to allow for some simple analysis on the command line with <a href="https://miller.readthedocs.io" target="_blank" rel="noopener noreferrer">MIller</a>. The <code class="language-plaintext highlighter-rouge">awk</code> command drops the columns that don’t have any data in them and the Miller command fills empty spots in the <code class="language-plaintext highlighter-rouge">Sponsor</code> and <code class="language-plaintext highlighter-rouge">Committee</code> columns, making the data bit <a href="https://vita.had.co.nz/papers/tidy-data.pdf" target="_blank" rel="noopener noreferrer">tidy</a>-er.</p>
+
+<div class="language-zsh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">awk</span> <span class="s1">'BEGIN{FS=OFS="\t"}{print $1, $2, $4, $5, $6, $7, $11, $12}'</span> all_data.tsv | mlr <span class="nt">--tsv</span> fill-down <span class="nt">-f</span> Sponsor,Committee <span class="k">then </span><span class="nb">cat</span> <span class="o">&gt;</span> filled_metadata.tsv
+</code></pre></div></div>
+
+<p>Finally, to allow for easier reading of the spreadsheet by humans, the following awk command puts a blank line between each bill. <code class="language-plaintext highlighter-rouge">$5</code> refers to the <code class="language-plaintext highlighter-rouge">Bill Number</code> column.</p>
+
+<div class="language-zsh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># insert blank lines between bills for pasting into final spreadsheet</span>
+<span class="nb">awk</span> <span class="s1">'BEGIN{FS="\t"} {cur=$5} NR&gt;1 &amp;&amp; cur!=prev {print ""} {prev=cur; print}'</span> all_data.tsv <span class="o">&gt;</span> spaced_metadata.tsv
+</code></pre></div></div>
+
+<h2 id="next-time">Next Time</h2>
+
+<p>This wraps up the core workflow, so now it’s time to move on how I actually use the Datasette web interface and SQL queries to check metadata quality.</p>
+
+  </div>
+<a class="u-url" href="/2022/12/04/meta-data-sette.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">William Blackerby</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">William Blackerby</li>
+<li><a class="u-email" href="mailto:wmblackerby@gmail.com">wmblackerby@gmail.com</a></li>
+</ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+<ul class="social-media-list"><li><a href="https://github.com/blackerby" target="_blank" rel="noopener noreferrer"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">blackerby</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>William Blackerby's home on the web.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
